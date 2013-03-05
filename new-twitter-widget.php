@@ -30,24 +30,6 @@ load_plugin_textdomain( NTW_TD, false, dirname( plugin_basename( __FILE__ ) ) . 
 
 
 /**
- * Load front-end scripts
- */
-function ntw_enqueue_scripts() {
-
-}
-add_action( 'wp_enqueue_scripts', 'ntw_enqueue_scripts' );
-
-
-/**
- * Load front-end styles
- */
-function ntw_enqueue_styles() {
-	wp_enqueue_style( 'ntw_style', plugins_url( 'style.css', __FILE__ ) );
-}
-add_action( 'wp_enqueue_scripts', 'ntw_enqueue_styles' );
-
-
-/**
  * Initialize widgets
  */
 function ntw_widgets_init() {
@@ -63,13 +45,14 @@ class NTW_Twitter_Widget extends WP_Widget {
 
 	function __construct() {
 		$widget_ops = array( 'description' => __( 'Display your tweets from Twitter.', NTW_TD ), 'classname' => 'widget_twitter' );
-		parent::__construct( 'widget-featured-ads', __( 'NTW Twitter Feed', NTW_TD ), $widget_ops );
+		parent::__construct( 'new-twitter-widget', __( 'NTW Twitter Feed', NTW_TD ), $widget_ops );
 	}
 
 	function widget( $args, $instance ) {
 		extract( $args );
 		$title = apply_filters( 'widget_title', empty( $instance['title'] ) ? __( 'Twitter Feed', NTW_TD ) : $instance['title'] );
 		$username = empty( $instance['username'] ) ? 'meloniq_net' : $instance['username'];
+		$date = isset( $instance['date'] );
 
 		if ( empty( $instance['number'] ) || ! $number = absint( $instance['number'] ) )
  			$number = 10;
@@ -79,9 +62,22 @@ class NTW_Twitter_Widget extends WP_Widget {
 
 		echo $before_widget;
 
-		if ( $title ) echo $before_title . $title . $after_title;
+		if ( $title )
+			echo $before_title . $title . $after_title;
 
-		wp_widget_rss_output( $feed_url, array( 'items' => $number, 'show_author' => 0, 'show_date' => 1, 'show_summary' => 0 ) );
+		$rss_output = get_transient( 'ntw_' . $this->id );
+
+		if ( $rss_output !== false ) {
+			echo $rss_output;
+		} else {
+			ob_start();
+			wp_widget_rss_output( $feed_url, array( 'items' => $number, 'show_author' => 0, 'show_date' => $date, 'show_summary' => 0 ) );
+			$rss_output = ob_get_clean();
+
+			set_transient( 'ntw_' . $this->id, $rss_output, 60*60*3 ); // cache for 3h
+
+			echo $rss_output;
+		}
 
 		echo $after_widget;
 	}
@@ -91,12 +87,15 @@ class NTW_Twitter_Widget extends WP_Widget {
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['username'] = preg_replace( '/[^a-z0-9_]/i', '', $new_instance['username'] );
 		$instance['number'] = (int) $new_instance['number'];
+		$instance['date'] = $new_instance['date'];
+
+		delete_transient( 'ntw_' . $this->id );
 
 		return $instance;
 	}
 
 	function form( $instance ) {
-		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'username' => 'meloniq_net', 'number' => 10 ) );
+		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'username' => 'meloniq_net', 'number' => 10, 'date' => 'on' ) );
 		$title = esc_attr( $instance['title'] );
 		$username = esc_attr( $instance['username'] );
 		$number = absint( $instance['number'] );
@@ -112,6 +111,10 @@ class NTW_Twitter_Widget extends WP_Widget {
 			<p>
 				<label for="<?php echo $this->get_field_id('number'); ?>"><?php _e( 'Number of tweets to show:', NTW_TD ); ?></label>
 				<input id="<?php echo $this->get_field_id('number'); ?>" name="<?php echo $this->get_field_name('number'); ?>" type="text" value="<?php echo $number; ?>" size="2" />
+			</p>
+			<p>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['date'], 'on' ); ?> id="<?php echo $this->get_field_id('date'); ?>" name="<?php echo $this->get_field_name('date'); ?>" />
+				<label for="<?php echo $this->get_field_id('date'); ?>"><?php _e( 'Show date', NTW_TD ); ?></label>
 			</p>
 		<?php
 	}
