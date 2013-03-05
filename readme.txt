@@ -2,15 +2,24 @@
 Contributors: meloniq
 Donate link: http://blog.meloniq.net/donate/
 Tags: twitter, widget, feed, user timeline, tweets, rss, api
+License: GPLv2 or later
 Requires at least: 3.3
 Tested up to: 3.5.1
 Stable tag: 1.0
 
-WordPress plugin that adds customizable Twitter widget.
+Shows the latest tweets from a Twitter account in a sidebar widget. 
 
 == Description ==
 
-WordPress plugin that adds customizable Twitter widget.
+This plugin displays the latest posts from a Twitter account in a sidebar widget.
+
+= Features / Highlights =
+* Widget title
+* Number of tweets to show
+* Show/Hide tweet date
+* Uses cache
+
+= No need to create Twitter Application and enter keys - uses <a href="http://twitter-rss.com">Twitter RSS</a> service! =
 
 
 = Supported languages =
