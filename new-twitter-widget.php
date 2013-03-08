@@ -121,17 +121,3 @@ class NTW_Twitter_Widget extends WP_Widget {
 }
 
 
-/**
- * Initialize WP App Store Installer
- */
-function ntw_wpappstore_init() {
-
-	if ( ! is_admin() || class_exists( 'WP_App_Store_Installer' ) )
-		return;
-
-	require_once( 'includes/wp-app-store.php' );
-	$wp_app_store_installer = new WP_App_Store_Installer( 3788 );
-}
-add_action( 'init', 'ntw_wpappstore_init', 9 );
-
-

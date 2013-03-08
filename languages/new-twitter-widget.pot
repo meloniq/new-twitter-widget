@@ -49,14 +49,3 @@ msgstr ""
 msgid "Show date"
 msgstr ""
 
-#: ../includes/wp-app-store.php:155
-msgid ""
-"Sorry, we could not reach the WP App Store to setup the auto installer. "
-"Please try again later."
-msgstr ""
-
-#: ../includes/wp-app-store.php:156
-msgid ""
-"In the meantime, you can try checking us out at <a href=\"http://wpappstore."
-"com/\">http://wpappstore.com/</a>."
-msgstr ""
